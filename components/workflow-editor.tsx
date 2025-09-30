@@ -82,20 +82,20 @@ export function WorkflowEditor({ workflowId }: { workflowId: string }) {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-lg font-semibold text-foreground">Workflow Steps</h2>
-          <p className="text-sm text-muted-foreground">Add and configure steps for your guided workflow</p>
+          <h2 className="text-lg font-semibold text-white">Workflow Steps</h2>
+          <p className="text-sm text-gray-300">Add and configure steps for your guided workflow</p>
         </div>
-        <Button onClick={handleAddStep} className="gap-2">
+        <Button onClick={handleAddStep} className="gap-2 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20">
           <Plus className="h-4 w-4" />
           Add Step
         </Button>
       </div>
 
       {steps.length === 0 ? (
-        <Card className="p-12 text-center">
-          <h3 className="text-lg font-semibold text-foreground">No steps yet</h3>
-          <p className="mt-2 text-sm text-muted-foreground">Add your first step to start building the workflow</p>
-          <Button onClick={handleAddStep} className="mt-6">
+        <Card className="p-12 text-center bg-white/10 backdrop-blur-sm border-white/20">
+          <h3 className="text-lg font-semibold text-white">No steps yet</h3>
+          <p className="mt-2 text-sm text-gray-300">Add your first step to start building the workflow</p>
+          <Button onClick={handleAddStep} className="mt-6 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20">
             Add First Step
           </Button>
         </Card>
@@ -104,10 +104,10 @@ export function WorkflowEditor({ workflowId }: { workflowId: string }) {
           {steps.map((step, index) => (
             <div key={step.id} className="flex items-start gap-3">
               <div className="flex flex-col items-center gap-2 pt-6">
-                <Button variant="ghost" size="icon" className="h-6 w-6 cursor-grab">
-                  <GripVertical className="h-4 w-4 text-muted-foreground" />
+                <Button variant="ghost" size="icon" className="h-6 w-6 cursor-grab text-white hover:bg-white/10">
+                  <GripVertical className="h-4 w-4" />
                 </Button>
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-sm font-semibold text-white border border-white/30">
                   {index + 1}
                 </div>
               </div>

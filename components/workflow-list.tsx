@@ -46,11 +46,11 @@ export function WorkflowList() {
 
   if (workflows.length === 0) {
     return (
-      <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border border-dashed border-border bg-card p-12 text-center">
-        <h3 className="text-lg font-semibold text-foreground">No workflows yet</h3>
-        <p className="mt-2 text-sm text-muted-foreground">Get started by creating your first workflow</p>
+      <div className="flex min-h-[400px] flex-col items-center justify-center rounded-lg border border-dashed border-white/20 bg-white/5 backdrop-blur-sm p-12 text-center">
+        <h3 className="text-lg font-semibold text-white">No workflows yet</h3>
+        <p className="mt-2 text-sm text-gray-300">Get started by creating your first workflow</p>
         <Link href="/workflows/new">
-          <Button className="mt-6">Create Workflow</Button>
+          <Button className="mt-6 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20">Create Workflow</Button>
         </Link>
       </div>
     )
@@ -59,24 +59,24 @@ export function WorkflowList() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-foreground">Your Workflows</h2>
-        <p className="text-sm text-muted-foreground">{workflows.length} total</p>
+        <h2 className="text-lg font-semibold text-white">Your Workflows</h2>
+        <p className="text-sm text-gray-300">{workflows.length} total</p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {workflows.map((workflow) => (
-          <Card key={workflow.id} className="p-6">
+          <Card key={workflow.id} className="p-6 bg-white/10 backdrop-blur-sm border-white/20">
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 <div className="flex items-center gap-2">
-                  <h3 className="font-semibold text-foreground">{workflow.name}</h3>
-                  <Badge variant={workflow.status === "published" ? "default" : "secondary"}>{workflow.status}</Badge>
+                  <h3 className="font-semibold text-white">{workflow.name}</h3>
+                  <Badge variant={workflow.status === "published" ? "default" : "secondary"} className="bg-white/20 text-white border-white/30">{workflow.status}</Badge>
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{workflow.description}</p>
+                <p className="mt-2 text-sm text-gray-300 line-clamp-2">{workflow.description}</p>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:bg-white/10">
                     <MoreVertical className="h-4 w-4" />
                   </Button>
                 </DropdownMenuTrigger>
@@ -106,7 +106,7 @@ export function WorkflowList() {
               </DropdownMenu>
             </div>
 
-            <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
+            <div className="mt-4 flex items-center gap-4 text-sm text-gray-400">
               <span>{workflow.steps} steps</span>
               <span>•</span>
               <span>Updated {new Date(workflow.updatedAt).toLocaleDateString()}</span>
