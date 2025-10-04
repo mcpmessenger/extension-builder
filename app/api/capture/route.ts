@@ -15,8 +15,8 @@ export async function POST(request: Request) {
 
     const scriptPath = path.join(process.cwd(), "PlayWright", "web", "scripts", "capture-clickables.mjs");
 
-    // Create screenshots directory
-    const screenshotsDir = path.join(process.cwd(), "public", "screenshots", out);
+    // Create screenshots directory in PlayWright/web/public/screenshots
+    const screenshotsDir = path.join(process.cwd(), "PlayWright", "web", "public", "screenshots", out);
     if (!fs.existsSync(screenshotsDir)) {
       fs.mkdirSync(screenshotsDir, { recursive: true });
     }
@@ -44,14 +44,24 @@ export async function POST(request: Request) {
     const child = spawn(process.execPath, args, {
       cwd: path.join(process.cwd(), "PlayWright", "web"),
       detached: true,
-      stdio: "ignore",
+      stdio: ["ignore", "pipe", "pipe"],
     });
+    
+    // Log output for debugging
+    child.stdout?.on('data', (data) => {
+      console.log('Script stdout:', data.toString());
+    });
+    child.stderr?.on('data', (data) => {
+      console.error('Script stderr:', data.toString());
+    });
+    
     child.unref();
 
     return NextResponse.json({ ok: true, outFolder: out }, { status: 202 });
   } catch (e) {
     const message = e instanceof Error ? e.message : "unknown";
-    return NextResponse.json({ ok: false, error: message }, { status: 500 });
+    console.error("Capture API Error:", e);
+    return NextResponse.json({ ok: false, error: message, stack: e instanceof Error ? e.stack : undefined }, { status: 500 });
   }
 }
 
