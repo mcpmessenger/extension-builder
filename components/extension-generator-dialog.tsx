@@ -4,8 +4,9 @@ import { useState } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Download, FileCode, FileJson, FileText, CheckCircle2 } from "lucide-react"
+import { Download, FileCode, FileJson, FileText, CheckCircle2, Sparkles } from "lucide-react"
 import { generateExtensionFiles, downloadExtension } from "@/lib/extension-generator"
+import { EnhancedExtensionGenerator, EnhancedWorkflow } from "@/lib/enhanced-extension-generator"
 
 interface ExtensionGeneratorDialogProps {
   open: boolean
@@ -16,15 +17,74 @@ interface ExtensionGeneratorDialogProps {
 export function ExtensionGeneratorDialog({ open, onOpenChange, workflow }: ExtensionGeneratorDialogProps) {
   const [generated, setGenerated] = useState(false)
   const [files, setFiles] = useState<Record<string, string> | null>(null)
+  const [useAI, setUseAI] = useState(false)
 
   const handleGenerate = () => {
-    const extensionFiles = generateExtensionFiles(workflow)
-    setFiles(extensionFiles)
+    if (useAI) {
+      // Convert to enhanced workflow with AI features
+      const enhancedWorkflow: EnhancedWorkflow = {
+        id: workflow.id || Date.now().toString(),
+        name: workflow.name,
+        description: workflow.description,
+        steps: workflow.steps.map((step: any) => ({
+          id: step.id,
+          title: step.title,
+          description: step.description,
+          selector: step.selector,
+          action: 'highlight' as const,
+          tooltip: {
+            content: step.description,
+            position: step.position || 'bottom' as const
+          }
+        })),
+        aiFeatures: {
+          smartHighlighting: true,
+          contextualHelp: true,
+          adaptiveGuidance: true,
+          accessibilitySupport: true
+        }
+      }
+      
+      const enhancedGenerator = new EnhancedExtensionGenerator()
+      const extensionFiles = enhancedGenerator.generateExtensionFiles(enhancedWorkflow)
+      setFiles(extensionFiles)
+    } else {
+      const extensionFiles = generateExtensionFiles(workflow)
+      setFiles(extensionFiles)
+    }
     setGenerated(true)
   }
 
   const handleDownload = async () => {
-    await downloadExtension(workflow)
+    if (useAI) {
+      const enhancedWorkflow: EnhancedWorkflow = {
+        id: workflow.id || Date.now().toString(),
+        name: workflow.name,
+        description: workflow.description,
+        steps: workflow.steps.map((step: any) => ({
+          id: step.id,
+          title: step.title,
+          description: step.description,
+          selector: step.selector,
+          action: 'highlight' as const,
+          tooltip: {
+            content: step.description,
+            position: step.position || 'bottom' as const
+          }
+        })),
+        aiFeatures: {
+          smartHighlighting: true,
+          contextualHelp: true,
+          adaptiveGuidance: true,
+          accessibilitySupport: true
+        }
+      }
+      
+      const enhancedGenerator = new EnhancedExtensionGenerator()
+      await enhancedGenerator.downloadExtension(enhancedWorkflow)
+    } else {
+      await downloadExtension(workflow)
+    }
   }
 
   return (
@@ -42,9 +102,30 @@ export function ExtensionGeneratorDialog({ open, onOpenChange, workflow }: Exten
               <p className="mt-2 text-sm text-muted-foreground">
                 This will create a Chrome extension ZIP package with all your workflow steps
               </p>
-              <Button onClick={handleGenerate} className="mt-6">
-                Generate Extension Files
-              </Button>
+              
+              <div className="mt-6 space-y-4">
+                <div className="flex items-center justify-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="use-ai"
+                    checked={useAI}
+                    onChange={(e) => setUseAI(e.target.checked)}
+                    className="rounded border-gray-300"
+                  />
+                  <label htmlFor="use-ai" className="text-sm font-medium text-foreground flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-purple-500" />
+                    Enable AI-Powered Features
+                  </label>
+                </div>
+                <p className="text-xs text-muted-foreground max-w-md mx-auto">
+                  AI features include smart highlighting, contextual help, adaptive guidance, and accessibility support
+                </p>
+                
+                <Button onClick={handleGenerate} className="gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  Generate {useAI ? 'AI-Powered ' : ''}Extension
+                </Button>
+              </div>
             </div>
           </div>
         ) : (
@@ -85,6 +166,24 @@ export function ExtensionGeneratorDialog({ open, onOpenChange, workflow }: Exten
                     <p className="text-xs text-muted-foreground">Background service worker</p>
                   </div>
                 </Card>
+                {useAI && (
+                  <>
+                    <Card className="flex items-center gap-3 p-3">
+                      <FileCode className="h-5 w-5 text-purple-500" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-foreground">popup.html</p>
+                        <p className="text-xs text-muted-foreground">AI-powered extension popup</p>
+                      </div>
+                    </Card>
+                    <Card className="flex items-center gap-3 p-3">
+                      <FileCode className="h-5 w-5 text-purple-500" />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-foreground">popup.js</p>
+                        <p className="text-xs text-muted-foreground">Popup interaction logic</p>
+                      </div>
+                    </Card>
+                  </>
+                )}
               </div>
             </div>
 

@@ -17,6 +17,7 @@ interface ScreenshotCaptureProps {
 export function ScreenshotCapture({ onSave, initialScreenshot, initialAnnotations = [] }: ScreenshotCaptureProps) {
   const [screenshot, setScreenshot] = useState<string | null>(initialScreenshot || null)
   const [annotations, setAnnotations] = useState<any[]>(initialAnnotations)
+  const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleCapture = async () => {
@@ -51,9 +52,26 @@ export function ScreenshotCapture({ onSave, initialScreenshot, initialAnnotation
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      // Validate file type and size
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file')
+        return
+      }
+      
+      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+        alert('File size must be less than 10MB')
+        return
+      }
+      
+      setIsUploading(true)
       const reader = new FileReader()
       reader.onload = (event) => {
         setScreenshot(event.target?.result as string)
+        setIsUploading(false)
+      }
+      reader.onerror = () => {
+        alert('Failed to read file')
+        setIsUploading(false)
       }
       reader.readAsDataURL(file)
     }
@@ -80,13 +98,18 @@ export function ScreenshotCapture({ onSave, initialScreenshot, initialAnnotation
             Take a screenshot of your target page or upload an existing image
           </p>
           <div className="mt-6 flex gap-3">
-            <Button onClick={handleCapture} className="gap-2">
+            <Button onClick={handleCapture} className="gap-2 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20">
               <Camera className="h-4 w-4" />
               Capture Screen
             </Button>
-            <Button variant="outline" className="gap-2 bg-transparent" onClick={() => fileInputRef.current?.click()}>
+            <Button 
+              variant="outline" 
+              className="gap-2 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20" 
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isUploading}
+            >
               <Upload className="h-4 w-4" />
-              Upload Image
+              {isUploading ? 'Uploading...' : 'Upload Image'}
             </Button>
           </div>
           <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleUpload} />
@@ -98,13 +121,13 @@ export function ScreenshotCapture({ onSave, initialScreenshot, initialAnnotation
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-foreground">Screenshot & Annotations</h3>
+        <h3 className="text-sm font-semibold text-white">Screenshot & Annotations</h3>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={handleClear} className="gap-2 bg-transparent">
+          <Button variant="outline" size="sm" onClick={handleClear} className="gap-2 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20">
             <X className="h-4 w-4" />
             Clear
           </Button>
-          <Button size="sm" onClick={handleSave} className="gap-2">
+          <Button size="sm" onClick={handleSave} className="gap-2 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20">
             <Download className="h-4 w-4" />
             Save
           </Button>

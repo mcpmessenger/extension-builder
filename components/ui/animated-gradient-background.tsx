@@ -108,11 +108,15 @@ const AnimatedGradientBackground: React.FC<AnimatedGradientBackgroundProps> = ({
    const containerRef = useRef<HTMLDivElement | null>(null);
 
    useEffect(() => {
+      if (!containerRef.current) return;
+      
       let animationFrame: number;
       let width = startingGap;
       let directionWidth = 1;
 
       const animateGradient = () => {
+         if (!containerRef.current) return;
+         
          if (width >= startingGap + breathingRange) directionWidth = -1;
          if (width <= startingGap - breathingRange) directionWidth = 1;
 
@@ -125,17 +129,18 @@ const AnimatedGradientBackground: React.FC<AnimatedGradientBackgroundProps> = ({
 
          const gradient = `radial-gradient(${width}% ${width+topOffset}% at 50% 20%, ${gradientStopsString})`;
 
-         if (containerRef.current) {
-            containerRef.current.style.background = gradient;
-         }
-
+         containerRef.current.style.background = gradient;
          animationFrame = requestAnimationFrame(animateGradient);
       };
 
       animationFrame = requestAnimationFrame(animateGradient);
 
-      return () => cancelAnimationFrame(animationFrame); // Cleanup animation
-   }, [startingGap, Breathing, gradientColors, gradientStops, animationSpeed, breathingRange, topOffset]);
+      return () => {
+         if (animationFrame) {
+            cancelAnimationFrame(animationFrame);
+         }
+      };
+   }, [startingGap, Breathing, animationSpeed, breathingRange, topOffset]);
 
    return (
       <motion.div

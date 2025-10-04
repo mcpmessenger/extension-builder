@@ -1,11 +1,13 @@
-# Browser Extension Builder
+# AI-Powered Browser Extension Builder
 
-A powerful Next.js application that allows you to create, design, and generate Chrome browser extensions through a visual workflow interface.
+A powerful Next.js application that allows you to create, design, and generate intelligent Chrome browser extensions through AI-guided workflows and visual interfaces.
 
 ## 🚀 Features
 
+- **AI-Powered Guidance**: Intelligent workflow suggestions based on OpenAI analysis
 - **Visual Workflow Editor**: Create step-by-step workflows with an intuitive drag-and-drop interface
-- **Screenshot Capture**: Capture screenshots of web pages to annotate and design workflows
+- **Screenshot Capture & Annotation**: Capture and annotate web pages with Playwright integration
+- **Flow Analysis**: Import and analyze website user flows for informed recommendations
 - **Extension Generation**: Automatically generate Chrome extension code from your workflows
 - **ZIP Package Export**: Download complete extension packages ready for Chrome installation
 - **Modern UI**: Built with Next.js, TypeScript, and Tailwind CSS for a modern user experience
@@ -19,6 +21,9 @@ A powerful Next.js application that allows you to create, design, and generate C
 - **Icons**: Lucide React
 - **Package Manager**: pnpm
 - **Extension Packaging**: JSZip
+- **AI Integration**: OpenAI API
+- **Screenshot Tool**: Playwright
+- **Animation**: Framer Motion
 
 ## 📦 Installation
 
@@ -26,6 +31,7 @@ A powerful Next.js application that allows you to create, design, and generate C
 
 - Node.js 18+ 
 - pnpm (recommended) or npm
+- OpenAI API Key (optional, for AI features)
 
 ### Setup
 
@@ -40,26 +46,39 @@ A powerful Next.js application that allows you to create, design, and generate C
    pnpm install
    ```
 
-3. **Start the development server**
+3. **Set up environment variables (optional)**
+   ```bash
+   cp .env.example .env.local
+   # Add your OpenAI API key to .env.local for AI features
+   ```
+
+4. **Start the development server**
    ```bash
    pnpm dev
    ```
 
-4. **Open your browser**
+5. **Open your browser**
    Navigate to [http://localhost:3000](http://localhost:3000)
 
 ## 🎯 How to Use
 
 ### Creating a Workflow
 
-1. **Start New Workflow**: Click "New Workflow" to begin creating
-2. **Add Steps**: Define each step in your workflow with:
+1. **Start New Workflow**: Click "Create New Workflow" to begin
+2. **Capture Screenshots** (Optional): Use the Playwright integration to capture and annotate web pages
+3. **AI-Powered Analysis** (Optional): Import flow data for intelligent workflow suggestions
+4. **Add Steps**: Define each step in your workflow with:
    - Step title and description
    - CSS selector for target elements
    - Tooltip positioning
    - Action type (click, input, etc.)
-3. **Capture Screenshots**: Use the built-in screenshot tool to capture and annotate web pages
-4. **Preview**: Test your workflow in the preview mode
+5. **Preview**: Test your workflow in the preview mode
+
+### Using AI Features
+
+1. **Import Flow Data**: Upload Playwright session data for analysis
+2. **Get AI Suggestions**: Receive intelligent workflow recommendations
+3. **Smart Guidance**: AI helps optimize your workflow steps
 
 ### Generating Extensions
 
@@ -77,13 +96,20 @@ A powerful Next.js application that allows you to create, design, and generate C
 ```
 extension-builder/
 ├── app/                    # Next.js app router pages
+│   ├── ai-demo/           # AI features and demonstrations
+│   ├── playwright/        # Screenshot capture and annotation
 │   ├── workflows/         # Workflow management pages
+│   ├── api/               # API routes for AI, capture, etc.
 │   └── globals.css        # Global styles
 ├── components/            # React components
 │   ├── ui/               # Reusable UI components
-│   └── workflow-*.tsx    # Workflow-specific components
+│   ├── workflow-*.tsx    # Workflow-specific components
+│   ├── flow-import-dialog.tsx    # AI flow import
+│   └── playwright-session-selector.tsx  # Session management
 ├── lib/                  # Utility functions
-│   └── extension-generator.tsx  # Extension code generation
+│   ├── extension-generator.tsx  # Extension code generation
+│   └── flow-analysis-service.ts # AI analysis service
+├── PlayWright/           # Playwright integration
 ├── hooks/                # Custom React hooks
 └── public/               # Static assets
 ```
@@ -134,7 +160,9 @@ This project is open source and available under the [MIT License](LICENSE).
 - UI components from [shadcn/ui](https://ui.shadcn.com/)
 - Icons from [Lucide](https://lucide.dev/)
 - Extension packaging with [JSZip](https://stuk.github.io/jszip/)
+- AI powered by [OpenAI](https://openai.com/)
+- Screenshot capture with [Playwright](https://playwright.dev/)
 
 ---
 
-**Ready to build your first browser extension?** Start by creating a new workflow and see how easy it is to turn your ideas into working Chrome extensions! 🚀
+**Ready to build your first AI-powered browser extension?** Start by creating a new workflow and see how easy it is to turn your ideas into intelligent Chrome extensions! 🚀✨

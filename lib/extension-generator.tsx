@@ -33,6 +33,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 }
 
 function generateManifest(workflow: Workflow) {
+  // Generate web accessible resources for images
+  const webAccessibleResources = ["images/*"]
+  
   return {
     manifest_version: 3,
     name: workflow.name,
@@ -54,6 +57,12 @@ function generateManifest(workflow: Workflow) {
     action: {
       default_title: workflow.name,
     },
+    web_accessible_resources: [
+      {
+        resources: webAccessibleResources,
+        matches: [workflow.targetUrl + "/*"],
+      },
+    ],
     icons: {
       16: "icon16.png",
       48: "icon48.png",
@@ -162,6 +171,10 @@ class WorkflowGuide {
     this.tooltip = document.createElement('div');
     this.tooltip.className = 'workflow-tooltip workflow-tooltip-' + step.position;
     
+    // Get the image path for this step
+    const stepIndex = this.currentStep;
+    const imagePath = step.screenshot ? \`images/step-\${stepIndex + 1}-screenshot.png\` : null;
+    
     this.tooltip.innerHTML = \`
       <div class="workflow-tooltip-header">
         <span class="workflow-tooltip-progress">Step \${this.currentStep + 1} of \${this.steps.length}</span>
@@ -169,7 +182,7 @@ class WorkflowGuide {
       </div>
       <h3 class="workflow-tooltip-title">\${step.title}</h3>
       <p class="workflow-tooltip-description">\${step.description}</p>
-      \${step.screenshot ? \`<img src="\${step.screenshot}" class="workflow-tooltip-screenshot" />\` : ''}
+      \${imagePath ? \`<img src="\${chrome.runtime.getURL(imagePath)}" class="workflow-tooltip-screenshot" />\` : ''}
       <div class="workflow-tooltip-actions">
         \${this.currentStep > 0 ? '<button class="workflow-btn workflow-btn-secondary" onclick="window.workflowGuide.previous()">Previous</button>' : ''}
         <button class="workflow-btn workflow-btn-primary" onclick="window.workflowGuide.next()">
@@ -428,12 +441,24 @@ export function generateExtensionFiles(workflow: Workflow) {
   const styles = generateStyles()
   const background = generateBackground()
 
-  return {
+  const files: Record<string, string> = {
     "manifest.json": JSON.stringify(manifest, null, 2),
     "content.js": contentScript,
     "styles.css": styles,
     "background.js": background,
   }
+
+  // Add media files for steps with screenshots
+  workflow.steps.forEach((step, index) => {
+    if (step.screenshot) {
+      // Extract the base64 data from data URL
+      const base64Data = step.screenshot.replace(/^data:image\/[a-z]+;base64,/, '')
+      const extension = step.screenshot.match(/^data:image\/([a-z]+);base64,/)?.[1] || 'png'
+      files[`images/step-${index + 1}-screenshot.${extension}`] = base64Data
+    }
+  })
+
+  return files
 }
 
 export async function downloadExtension(workflow: Workflow) {
@@ -445,7 +470,13 @@ export async function downloadExtension(workflow: Workflow) {
 
   // Add all files to the ZIP
   Object.entries(files).forEach(([filename, content]) => {
-    zip.file(filename, content)
+    if (filename.startsWith('images/')) {
+      // Handle binary data for images
+      zip.file(filename, content, { base64: true })
+    } else {
+      // Handle text files
+      zip.file(filename, content)
+    }
   })
 
   // Generate the ZIP file

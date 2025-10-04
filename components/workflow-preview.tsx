@@ -70,7 +70,7 @@ export function WorkflowPreview({ steps, onClose }: WorkflowPreviewProps) {
   return (
     <div className="fixed inset-0 z-50">
       {/* Preview Header */}
-      <div className="border-b border-border/20 bg-card/80 backdrop-blur-sm">
+      <div className="border-b border-white/10 bg-transparent backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-4">
             <Badge variant="secondary" className="bg-white/20 text-white border-white/30">Preview Mode</Badge>

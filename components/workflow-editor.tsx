@@ -1,11 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Plus, GripVertical } from "lucide-react"
 import { StepCard } from "@/components/step-card"
 import { StepDialog } from "@/components/step-dialog"
+import { FlowImportDialog } from "@/components/flow-import-dialog"
+import { WorkflowSuggestions } from "@/components/workflow-suggestions"
+import { WorkflowSuggestion } from "@/lib/flow-analysis-service"
 
 interface Step {
   id: string
@@ -29,26 +32,23 @@ interface Annotation {
 }
 
 export function WorkflowEditor({ workflowId }: { workflowId: string }) {
-  const [steps, setSteps] = useState<Step[]>([
-    {
-      id: "1",
-      title: "Welcome to the Dashboard",
-      description: "This is your main dashboard where you can see all your activities",
-      selector: "#dashboard",
-      position: "bottom",
-      annotations: [],
-    },
-    {
-      id: "2",
-      title: "Create Your First Project",
-      description: "Click here to create a new project and get started",
-      selector: ".create-button",
-      position: "right",
-      annotations: [],
-    },
-  ])
+  const [steps, setSteps] = useState<Step[]>([])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingStep, setEditingStep] = useState<Step | null>(null)
+  const [workflowSuggestions, setWorkflowSuggestions] = useState<WorkflowSuggestion[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+
+  // Load steps from localStorage on component mount
+  useEffect(() => {
+    const savedSteps = localStorage.getItem(`workflow-${workflowId}-steps`)
+    if (savedSteps) {
+      try {
+        setSteps(JSON.parse(savedSteps))
+      } catch (error) {
+        console.error('Failed to parse saved steps:', error)
+      }
+    }
+  }, [workflowId])
 
   const handleAddStep = () => {
     setEditingStep(null)
@@ -62,20 +62,59 @@ export function WorkflowEditor({ workflowId }: { workflowId: string }) {
 
   const handleSaveStep = (step: Step) => {
     if (editingStep) {
-      setSteps(steps.map((s) => (s.id === step.id ? step : s)))
+      const updatedSteps = steps.map((s) => (s.id === step.id ? step : s))
+      setSteps(updatedSteps)
+      // Save to localStorage for persistence
+      localStorage.setItem(`workflow-${workflowId}-steps`, JSON.stringify(updatedSteps))
     } else {
-      setSteps([...steps, { ...step, id: Date.now().toString() }])
+      const newStep = { ...step, id: Date.now().toString() }
+      const updatedSteps = [...steps, newStep]
+      setSteps(updatedSteps)
+      // Save to localStorage for persistence
+      localStorage.setItem(`workflow-${workflowId}-steps`, JSON.stringify(updatedSteps))
     }
     setIsDialogOpen(false)
   }
 
   const handleDeleteStep = (id: string) => {
-    setSteps(steps.filter((s) => s.id !== id))
+    const updatedSteps = steps.filter((s) => s.id !== id)
+    setSteps(updatedSteps)
+    localStorage.setItem(`workflow-${workflowId}-steps`, JSON.stringify(updatedSteps))
   }
 
   const handleDuplicateStep = (step: Step) => {
     const newStep = { ...step, id: Date.now().toString(), title: `${step.title} (Copy)` }
-    setSteps([...steps, newStep])
+    const updatedSteps = [...steps, newStep]
+    setSteps(updatedSteps)
+    localStorage.setItem(`workflow-${workflowId}-steps`, JSON.stringify(updatedSteps))
+  }
+
+  const handleFlowImported = (suggestions: WorkflowSuggestion[]) => {
+    setWorkflowSuggestions(suggestions)
+    setShowSuggestions(true)
+  }
+
+  const handleApplySuggestion = (suggestion: WorkflowSuggestion) => {
+    // Convert AI suggestion steps to regular steps
+    const newSteps = suggestion.steps.map((aiStep, index) => ({
+      id: Date.now().toString() + index,
+      title: aiStep.title,
+      description: aiStep.description,
+      selector: aiStep.selector,
+      position: aiStep.tooltip.position as "top" | "bottom" | "left" | "right",
+      screenshot: undefined,
+      annotations: []
+    }))
+    
+    const updatedSteps = [...steps, ...newSteps]
+    setSteps(updatedSteps)
+    localStorage.setItem(`workflow-${workflowId}-steps`, JSON.stringify(updatedSteps))
+    setShowSuggestions(false)
+  }
+
+  const handleCustomizeSuggestion = (suggestion: WorkflowSuggestion) => {
+    console.log('Customizing suggestion:', suggestion)
+    // TODO: Open customization dialog
   }
 
   return (
@@ -85,11 +124,24 @@ export function WorkflowEditor({ workflowId }: { workflowId: string }) {
           <h2 className="text-lg font-semibold text-white">Workflow Steps</h2>
           <p className="text-sm text-gray-300">Add and configure steps for your guided workflow</p>
         </div>
-        <Button onClick={handleAddStep} className="gap-2 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20">
-          <Plus className="h-4 w-4" />
-          Add Step
-        </Button>
+        <div className="flex gap-2">
+          <FlowImportDialog onFlowImported={handleFlowImported} />
+          <Button onClick={handleAddStep} className="gap-2 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20">
+            <Plus className="h-4 w-4" />
+            Add Step
+          </Button>
+        </div>
       </div>
+
+      {showSuggestions && (
+        <div className="mb-6">
+          <WorkflowSuggestions
+            suggestions={workflowSuggestions}
+            onApplySuggestion={handleApplySuggestion}
+            onCustomizeSuggestion={handleCustomizeSuggestion}
+          />
+        </div>
+      )}
 
       {steps.length === 0 ? (
         <Card className="p-12 text-center bg-white/10 backdrop-blur-sm border-white/20">

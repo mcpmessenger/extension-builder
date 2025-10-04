@@ -23,7 +23,7 @@ export default function WorkflowEditorPage({ params }: { params: { id: string } 
 
   return (
     <div className="min-h-screen">
-      <header className="border-b border-border/20 bg-card/80 backdrop-blur-sm">
+      <header className="border-b border-white/10 bg-transparent backdrop-blur-sm">
         <div className="mx-auto max-w-7xl px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
